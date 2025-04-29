@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Query
 from typing import Optional
-from listing_service import search_listings
+from app.listing_service import search_listings
 
 router = APIRouter(
     prefix="/listings",

@@ -1,6 +1,8 @@
-from database import listings_collection
+from app.database import listings_collection
 from typing import Optional, List
 from bson.objectid import ObjectId
+from app.utils import serialize_mongo_document
+from fastapi import HTTPException
 
 async def search_listings(
     query: Optional[str] = None,
@@ -42,8 +44,12 @@ async def search_listings(
 
     listings_cursor = listings_collection.find(filter_query)
     listings = []
-    async for listing in listings_cursor:
-        listing["_id"] = str(listing["_id"])
-        listings.append(listing)
+    try:
+        async for listing in listings_cursor:
+            listing["_id"] = str(listing["_id"])
+            listings.append(serialize_mongo_document(listing))
+    except Exception as e:
+        print("MongoDB query failed:", str(e))
+        raise HTTPException(status_code=500, detail="Database query error")
 
     return listings
